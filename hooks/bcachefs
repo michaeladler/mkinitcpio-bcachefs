@@ -1,0 +1,35 @@
+#!/usr/bin/ash
+
+bcachefs_encrypted_mount_handler() {
+    msg ":: mounting bcachefs subvolume '@' on '$root' to real root"
+    mkdir -p /run/mount/root
+    # see https://forums.gentoo.org/viewtopic-p-8823041.html?#8823041
+    bcachefs mount -k wait -o ro "$root" /run/mount/root
+    bcachefs fsck "$root"
+    mount -o "remount,${rwopt:-ro}${rootflags:+,$rootflags}" /run/mount/root
+    if ! mount --bind /run/mount/root/@ "$1"; then
+        # shellcheck disable=SC2086
+        run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+        err "Failed to mount '$root' on real root"
+        echo "You are now being dropped into an emergency shell."
+        # shellcheck disable=SC2119
+        launch_interactive_shell
+        msg "Trying to continue (this will most likely fail) ..."
+    fi
+}
+
+run_hook() {
+    modprobe -a -q bcachefs >/dev/null 2>&1
+    # check if $root needs unlocking and unlock it
+    local rootdev
+    rootdev="$(resolve_device "$root")"
+    if bcachefs unlock -c "$rootdev" >/dev/null 2>&1; then
+        echo "Unlocking $rootdev:"
+        for i in 1 2 3; do
+            bcachefs unlock "$rootdev" && break
+        done
+        mount_handler=bcachefs_encrypted_mount_handler
+    fi
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
