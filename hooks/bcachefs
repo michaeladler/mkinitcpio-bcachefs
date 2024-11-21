@@ -25,7 +25,7 @@ run_hook() {
     rootdev="$(resolve_device "$root")"
     if bcachefs unlock -c "$rootdev" >/dev/null 2>&1; then
         echo "Unlocking $rootdev:"
-        for i in 1 2 3; do
+        while true; do
             bcachefs unlock "$rootdev" && break
         done
         mount_handler=bcachefs_encrypted_mount_handler
