@@ -5,7 +5,7 @@ bcachefs_encrypted_mount_handler() {
     mkdir -p /run/mount/root
     # see https://forums.gentoo.org/viewtopic-p-8823041.html?#8823041
     bcachefs mount -k wait -o ro "$root" /run/mount/root
-    bcachefs fsck "$root"
+    bcachefs fsck "$root" || echo "ERROR: failed to fsck $root"
     mount -o "remount,${rwopt:-ro}${rootflags:+,$rootflags}" /run/mount/root
     if ! mount --bind /run/mount/root/@ "$1"; then
         # shellcheck disable=SC2086
