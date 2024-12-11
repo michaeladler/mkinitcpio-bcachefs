@@ -1,6 +1,6 @@
 # Maintainer: Michael Adler <therisen06@gmail.com>
 pkgname=mkinitcpio-bcachefs
-pkgver=0.0.1
+pkgver=0.0.2
 pkgrel=1
 pkgdesc="mkinitcpio hook to mount the subvolume @ of an encrypted bcachefs filesystem"
 arch=('any')

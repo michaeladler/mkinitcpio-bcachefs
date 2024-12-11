@@ -4,13 +4,13 @@ bcachefs_encrypted_mount_handler() {
     msg ":: mounting bcachefs subvolume '@' on '$root' to real root"
     mkdir -p /run/mount/root
     # see https://forums.gentoo.org/viewtopic-p-8823041.html?#8823041
-    echo "Mounting $root"
-    bcachefs mount -k wait -o ro "$root" /run/mount/root
+    bcachefs mount -v -k wait -o fsck,fix_errors "$root" /run/mount/root
 
-    echo "fsck'ing $root"
-    bcachefs fsck "$root" || echo "ERROR: failed to fsck $root"
+    if [ "${rootflags}" != "" ]; then
+        echo "remounting with rootflags: ${rootflags:+,$rootflags}"
+        mount -o "remount,${rootflags:+,$rootflags}" /run/mount/root
+    fi
 
-    mount -o "remount,${rwopt:-ro}${rootflags:+,$rootflags}" /run/mount/root
     echo "bind-mounting subvolume @"
     if ! mount --bind /run/mount/root/@ "$1"; then
         # shellcheck disable=SC2086
