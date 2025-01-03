@@ -4,7 +4,7 @@ bcachefs_encrypted_mount_handler() {
     msg ":: mounting bcachefs subvolume '@' on '$root' to real root"
     mkdir -p /run/mount/root
     # see https://forums.gentoo.org/viewtopic-p-8823041.html?#8823041
-    bcachefs mount -v -k wait -o fsck,fix_errors "$root" /run/mount/root
+    bcachefs mount -v -k wait "$root" /run/mount/root
 
     if [ "${rootflags}" != "" ]; then
         echo "remounting with rootflags: ${rootflags:+,$rootflags}"
